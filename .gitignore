@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+fsro_env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Data files
+*.csv
+*.tsv
+*.data
+
+# Environment files
+.env
+.venv
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Python dependency files
+pip-log.txt
+
+# Ignore PDFs
+*.pdf
