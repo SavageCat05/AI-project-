@@ -37,6 +37,7 @@ sc_frogs = ax.scatter([], [], c='green', label='Frogs (Exploitation)', marker='o
 sc_snakes = ax.scatter([], [], c='red', label='Snakes (Exploration)', marker='x')
 sc_best = ax.scatter([], [], c='blue', label='Best Solution', marker='*', s=100)
 iteration_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
+best_value_text = ax.text(0.02, 0.90, '', transform=ax.transAxes)  # New line for best value
 ax.legend(loc='upper right')
 
 def update(frame):
@@ -83,7 +84,8 @@ def update(frame):
     sc_snakes.set_offsets(snakes)
     sc_best.set_offsets([best_solution])  # Use the best solution
     iteration_text.set_text(f"Iteration: {iteration}")
-    return sc_frogs, sc_snakes, sc_best, iteration_text
+    best_value_text.set_text(f"Best Fitness: {best_fitness:.4f}")  # Display best value
+    return sc_frogs, sc_snakes, sc_best, iteration_text, best_value_text
 
 ani = FuncAnimation(fig, update, frames=MAX_GEN, interval=200, repeat=False)
 plt.show()
