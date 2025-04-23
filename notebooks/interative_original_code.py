@@ -1,3 +1,5 @@
+#### NOTE : I am Anshuman and comments have been specifically added to the code to make it more readable and understandable.
+#### PLEASE ~ DO NOT REMOVE THE COMMENTS without my permission.
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -7,113 +9,89 @@ def objective(x):
     return np.sum(np.square(x))
 
 # Parameters
-POP_SIZE = 6  # Reduced number of search agents
+POP_SIZE = 6  # Reduced population for clearer visualization
 DIM = 2
-MAX_GEN = 300
+MAX_GEN = 500 # Increased iteration count
 X_BOUND = (-5, 5)
-
-# Enhancement params
-MUTATION_RATE = 0.05
-STAGNATION_LIMIT = 20
-ELITE_RATIO = 0.2
 
 # Initialize population
 def init_agents():
-    return np.random.uniform(X_BOUND[0], X_BOUND[1], (POP_SIZE, DIM))
+    snakes = np.random.uniform(X_BOUND[0], X_BOUND[1], (POP_SIZE, DIM))
+    return snakes
 
 snakes = init_agents()
 history = []
 iteration = 0
-stagnation_counter = 0
 
 # Initialize best solution
 best_solution = None
 best_fitness = float('inf')
 
 # Setup plot
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+fig, ax = plt.subplots()
 fig.canvas.manager.set_window_title("FSRO Exploration vs Exploitation")
+ax.set_xlim(X_BOUND)
+ax.set_ylim(X_BOUND)
 
-# Plot search agents
-ax1.set_xlim(X_BOUND)
-ax1.set_ylim(X_BOUND)
-ax1.scatter(0, 0, s=200, facecolors='none', edgecolors='black', linewidths=2, label='Target (0,0)')
-sc_snakes = ax1.scatter([], [], c='red', label='Snakes (Search Agents)', marker='x')
-sc_best = ax1.scatter([], [], c='blue', label='Best Solution', marker='*', s=100)
-iteration_text = ax1.text(0.02, 0.95, '', transform=ax1.transAxes)
-ax1.legend(loc='upper right')
+# Show square at origin (target)
+ax.scatter(0, 0, s=200, facecolors='none', edgecolors='black', linewidths=2, label='Target (0,0)')
 
-# Plot convergence graph
-ax2.set_title('Convergence Curve')
-ax2.set_xlabel('Iteration')
-ax2.set_ylabel('Best Fitness')
-convergence_line, = ax2.plot([], [], lw=2, label='Best Fitness')
-ax2.legend()
-best_fitnesses = []
+sc_snakes = ax.scatter([], [], c='red', label='Snakes (Search Agents)', marker='x')
+sc_best = ax.scatter([], [], c='blue', label='Best Solution', marker='*', s=100)
+iteration_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
+best_value_text = ax.text(0.02, 0.90, '', transform=ax.transAxes)  # Display best fitness
+ax.legend(loc='upper right')
 
-# Animation update function
+# Convergence data for plotting at the end
+convergence_data = []
+
+# Update function for animation
 def update(frame):
-    global snakes, iteration, best_solution, best_fitness, MUTATION_RATE, stagnation_counter
+    global snakes, iteration, best_solution, best_fitness
     iteration += 1
 
-    # Time-based and score-based decay: focus more around best after midpoint
-    decay = max(0.01, 1 - (iteration / MAX_GEN))
-    proximity_weight = min(1.0, iteration / (MAX_GEN * 0.6))
-    mutation_strength = MUTATION_RATE * 6 * decay * (1 - 0.7 * proximity_weight)
-
+    # Crossover and mutation for snakes (exploration)
     new_snakes = []
     for s in snakes:
         partner = snakes[np.random.randint(len(snakes))]
         c1, c2 = sorted(np.random.choice(DIM, 2, replace=False))
         child = s.copy()
         child[c1:c2] = partner[c1:c2]
-
-        # Move towards best solution with some randomness
-        if best_solution is not None:
-            direction = best_solution - child
-            child += 0.2 * proximity_weight * direction
-
-        child += np.random.normal(0, mutation_strength, DIM)
+        child += np.random.normal(0, 0.3, DIM)  # Constant exploration mutation
         child = np.clip(child, X_BOUND[0], X_BOUND[1])
         new_snakes.append(child)
-
     snakes = np.array(new_snakes)
 
-    # Evaluate and select elites
+    # Evaluate best
     fitness = np.array([objective(ind) for ind in snakes])
-    elites_idx = np.argsort(fitness)[:max(1, int(ELITE_RATIO * POP_SIZE))]
-    elites = snakes[elites_idx]
-
-    # Update best solution
     current_best_idx = np.argmin(fitness)
     current_best = snakes[current_best_idx]
     current_best_fitness = fitness[current_best_idx]
 
+    # Update best solution only if a better one is found
     if current_best_fitness < best_fitness:
         best_solution = current_best
         best_fitness = current_best_fitness
-        stagnation_counter = 0
-    else:
-        stagnation_counter += 1
 
-    best_fitnesses.append(best_fitness)
+    # Save history
+    convergence_data.append(best_fitness)
 
-    # Adaptive mutation
-    if stagnation_counter >= STAGNATION_LIMIT:
-        MUTATION_RATE = min(1.0, MUTATION_RATE * 1.5)
-        stagnation_counter = 0
-        snakes = init_agents()
-
-    # Update plot data
+    # Update plot
     sc_snakes.set_offsets(snakes)
-    sc_best.set_offsets([best_solution])
-    iteration_text.set_text(f"Iteration: {iteration} | Best: {best_fitness:.4f}")
-
-    convergence_line.set_data(range(len(best_fitnesses)), best_fitnesses)
-    ax2.relim()
-    ax2.autoscale_view()
-    return sc_snakes, sc_best, iteration_text, convergence_line
+    sc_best.set_offsets([best_solution])  # Use the best solution
+    iteration_text.set_text(f"Iteration: {iteration}")
+    best_value_text.set_text(f"Best Fitness: {best_fitness:.4f}")
+    return sc_snakes, sc_best, iteration_text, best_value_text
 
 ani = FuncAnimation(fig, update, frames=MAX_GEN, interval=200, repeat=False)
-plt.tight_layout()
+plt.show()
+
+# Plot convergence graph at the end
+plt.figure()
+plt.plot(convergence_data, label='Best Fitness')
+plt.xlabel('Iteration')
+plt.ylabel('Best Fitness')
+plt.title('Convergence Curve')
+plt.legend()
+plt.grid(True)
 plt.show()
