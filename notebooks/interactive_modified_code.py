@@ -1,4 +1,4 @@
-`#### NOTE : I am Anshuman and comments have been specifically added to the code to make it more readable and understandable.
+#### NOTE : I am Anshuman and comments have been specifically added to the code to make it more readable and understandable.
 #### PLEASE ~ DO NOT REMOVE THE COMMENTS without my permission.
 import numpy as np
 import matplotlib.pyplot as plt
