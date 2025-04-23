@@ -66,11 +66,11 @@ class FSRO:
 
         return self.best_solution, self.best_fitness, self.fitness_history
 
-# Usage example
-def objective(x):
-    return np.sum(np.square(x))
+if __name__ == "__main__":
+    def objective(x):
+        return np.sum(np.square(x))
 
-fsro = FSRO(objective_func=objective)
-best_sol, best_fit, history = fsro.optimize()
-print("Best Solution:", best_sol)
-print("Best Fitness:", best_fit)
+    fsro = FSRO(objective_func=objective)
+    best_sol, best_fit, history = fsro.optimize()
+    print("Best Solution:", best_sol)
+    print("Best Fitness:", best_fit)
