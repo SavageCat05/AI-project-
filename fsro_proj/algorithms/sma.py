@@ -1,6 +1,6 @@
 # This work belongs to Kanav. 
 # dont change this without his permission
-# this is code for smaile mould optimization algorithm.
+# this is code for smile mould optimization algorithm.
 
 import numpy as np
 
