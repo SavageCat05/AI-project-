@@ -9,7 +9,7 @@ def objective(x):
 # Parameters
 POP_SIZE = 6  # Reduced number of search agents
 DIM = 2
-MAX_GEN = 100
+MAX_GEN = 500
 X_BOUND = (-5, 5)
 
 # Enhancement params
