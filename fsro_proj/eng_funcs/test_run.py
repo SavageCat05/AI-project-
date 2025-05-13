@@ -1,6 +1,14 @@
 import numpy as np
-from fsro_proj.fsro_variants.fsro_modified import FSRO
-from eg_funcs import pressure_vessel, spring_design, welded_beam, speed_reducer, gear_train
+import sys
+import os
+
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
+
+from fsro_variants.fsro_modified import FSRO
+
+from eg_func import pressure_vessel, spring_design, welded_beam, speed_reducer, gear_train
 
 problems = [
     ("Pressure Vessel", pressure_vessel, 4, (0.0625, 99)),
@@ -19,6 +27,7 @@ def run_engineering_with_fsro():
             x_bound=bounds
         )
         best_sol, best_fit, history = fsro.optimize()
+
         print(f"{name}: Best Fitness = {best_fit:.6f}, Best Solution = {best_sol}")
 
 if __name__ == "__main__":
