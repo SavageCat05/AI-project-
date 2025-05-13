@@ -17,7 +17,7 @@ class FSRO:
     def _init_agents(self):
         return np.random.uniform(self.bounds[0], self.bounds[1], (self.pop_size, self.dim))
 
-    # Sphere objective function
+    # Sphere objective functiong
     def _objective(self, x):
         return np.sum(np.square(x))
 
