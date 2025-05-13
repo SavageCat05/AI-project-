@@ -30,7 +30,7 @@ class LG_FSRO:
         self.x_bound = (self.lb, self.ub)
 
     def _init_pop(self):
-        return np.random.uniform(self.x_bound[0], self.x_bound[1], (self.pop_size, self.dim))
+        return np.random.uniform(self.lb, self.ub, (self.pop_size, self.dim))
 
     def optimize(self):
         convergence_curve = []
