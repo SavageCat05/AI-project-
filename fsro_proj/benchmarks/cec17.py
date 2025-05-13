@@ -24,6 +24,14 @@ cec2017_funcs = [
     F282017, F292017, F32017, F42017, F52017, F62017, F72017, F82017, F92017
 ]
 
+def get_functions(dim=10):
+    functions = {}
+    for i, func_class in enumerate(cec2017_funcs, 1):
+        func_instance = func_class(ndim=dim)
+        functions[f"F{i:02d}"] = func_instance.evaluate
+    return functions
+
+
 def run_cec2017_with_fsro():
     results = []
     dim = 10
