@@ -1,13 +1,19 @@
 import numpy as np
-from fsro_proj.fsro_variants.fsro_modified import FSRO
+
+import sys
+import os
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
+
+from fsro_variants.fsro_modified import FSRO
+
 from opfunu.cec_based.cec2022 import (
-    F12022, F22022, F32022, F42022, F52022, F62022, F72022, F82022, F92022, F102022,
-    F112022, F122022, F132022, F142022, F152022, F162022, F172022, F182022, F192022, F202022
+    F102022, F112022, F12022, F122022, F22022, F32022, F42022, F52022, F62022, F72022, F82022, F92022
 )
 
 cec2022_funcs = [
-    F12022, F22022, F32022, F42022, F52022, F62022, F72022, F82022, F92022, F102022,
-    F112022, F122022, F132022, F142022, F152022, F162022, F172022, F182022, F192022, F202022
+    F102022, F112022, F12022, F122022, F22022, F32022, F42022, F52022, F62022, F72022, F82022, F92022
 ]
 
 def run_cec2022_with_fsro():
@@ -17,7 +23,7 @@ def run_cec2022_with_fsro():
     x_bound = (-100, 100)
 
     for i, func_class in enumerate(cec2022_funcs, start=1):
-        func_instance = func_class(dim=dim)
+        func_instance = func_class(ndim=dim)
         fsro = FSRO(
             objective_func=func_instance.evaluate,
             dim=dim,

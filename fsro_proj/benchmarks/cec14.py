@@ -1,6 +1,12 @@
 import numpy as np
 import sys
-from fsro_proj.fsro_variants.fsro_modified import FSRO
+import os
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
+
+from fsro_variants.fsro_modified import FSRO
+
 from opfunu.cec_based.cec2014 import (
     F12014, F22014, F32014, F42014, F52014, F62014, F72014, F82014, F92014, F102014,
     F112014, F122014, F132014, F142014, F152014, F162014, F172014, F182014, F192014, F202014,
@@ -20,7 +26,7 @@ def run_cec2014_with_fsro():
     x_bound = (-100, 100)
 
     for i, func_class in enumerate(cec2014_funcs, start=1):
-        func_instance = func_class(dim=dim)
+        func_instance = func_class(ndim=dim)
         fsro = FSRO(
             objective_func=func_instance.evaluate,
             dim=dim,

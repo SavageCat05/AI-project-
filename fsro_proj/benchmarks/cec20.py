@@ -1,14 +1,20 @@
 
 import numpy as np
-from fsro_proj.fsro_variants.fsro_modified import FSRO
+
+import sys
+import os
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
+
+from fsro_variants.fsro_modified import FSRO
+
 from opfunu.cec_based.cec2020 import (
-    F12020, F22020, F32020, F42020, F52020, F62020, F72020, F82020, F92020, F102020,
-    F112020, F122020, F132020, F142020, F152020, F162020, F172020, F182020, F192020, F202020
+    F102020, F12020, F22020, F32020, F42020, F52020, F62020, F72020, F82020, F92020
 )
 
 cec2020_funcs = [
-    F12020, F22020, F32020, F42020, F52020, F62020, F72020, F82020, F92020, F102020,
-    F112020, F122020, F132020, F142020, F152020, F162020, F172020, F182020, F192020, F202020
+    F102020, F12020, F22020, F32020, F42020, F52020, F62020, F72020, F82020, F92020
 ]
 
 def run_cec2020_with_fsro():
@@ -18,7 +24,7 @@ def run_cec2020_with_fsro():
     x_bound = (-100, 100)
 
     for i, func_class in enumerate(cec2020_funcs, start=1):
-        func_instance = func_class(dim=dim)
+        func_instance = func_class(ndim=dim)
         fsro = FSRO(
             objective_func=func_instance.evaluate,
             dim=dim,
