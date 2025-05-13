@@ -19,6 +19,14 @@ cec2014_funcs = [
     F212014, F222014, F232014, F242014, F252014, F262014, F272014, F282014, F292014, F302014
 ]
 
+def get_functions(dim=10):
+    functions = {}
+    for i, func_class in enumerate(cec2014_funcs, 1):
+        func_instance = func_class(ndim=dim)
+        functions[f"F{i:02d}"] = func_instance.evaluate
+    return functions
+
+
 def run_cec2014_with_fsro():
     results = []
     dim = 10

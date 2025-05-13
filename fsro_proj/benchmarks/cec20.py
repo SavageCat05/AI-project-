@@ -17,6 +17,14 @@ cec2020_funcs = [
     F102020, F12020, F22020, F32020, F42020, F52020, F62020, F72020, F82020, F92020
 ]
 
+def get_functions(dim=10):
+    functions = {}
+    for i, func_class in enumerate(cec2020_funcs, 1):
+        func_instance = func_class(ndim=dim)
+        functions[f"F{i:02d}"] = func_instance.evaluate
+    return functions
+
+
 def run_cec2020_with_fsro():
     results = []
     dim = 10
