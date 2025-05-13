@@ -9,7 +9,7 @@ from benchmarks import cec14, cec17, cec20, cec22
 # Settings
 n_runs = 50
 max_evals = 60000
-dim = 30 
+dim = 30
 save_folder = "results"
 
 if not os.path.exists(save_folder):

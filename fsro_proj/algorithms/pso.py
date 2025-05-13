@@ -6,7 +6,7 @@ import numpy as np
 
 def optimize(fobj, bounds, max_evals):
     dim = len(bounds)
-    pop_size = 30
+    pop_size = 10
     w = 0.5
     c1 = 1.5
     c2 = 1.5

@@ -6,7 +6,7 @@ import numpy as np
 
 def optimize(fobj, bounds, max_evals):
     dim = len(bounds)
-    pop_size = 30
+    pop_size = 10
     X = np.random.uniform([b[0] for b in bounds], [b[1] for b in bounds], (pop_size, dim))
     fitness = np.array([fobj(x) for x in X])
     
