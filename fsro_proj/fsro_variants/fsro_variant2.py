@@ -18,7 +18,6 @@ class LG_FSRO:
             self.ub = np.full(dim, 5.0)
         else:
             self.ub = np.array(upper_bounds)
-            
         self.population = self._init_pop()
         self.best_solution = None
         self.best_fitness = float('inf')
@@ -27,9 +26,11 @@ class LG_FSRO:
         best_idx = np.argmin(fitness)
         self.best_fitness = fitness[best_idx]
         self.best_solution = self.population[best_idx].copy()
+        
+        self.x_bound = (self.lb, self.ub)
 
     def _init_pop(self):
-        return np.random.uniform(self.lb, self.ub, (self.pop_size, self.dim))
+        return np.random.uniform(self.x_bound[0], self.x_bound[1], (self.pop_size, self.dim))
 
     def optimize(self):
         convergence_curve = []

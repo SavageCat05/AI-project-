@@ -70,7 +70,7 @@ class FSRO:
             child += np.random.normal(0, mutation_scale, self.dim)
 
             # Bound the solution
-            child = np.clip(child, self.x_bound[0], self.x_bound[1])
+            child = np.clip(child, self.lb, self.ub)
             new_population.append(child)
 
         return np.array(new_population)

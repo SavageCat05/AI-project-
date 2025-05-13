@@ -4,26 +4,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# FSRO algorithm
 class FSRO:
     def __init__(self, fobj, pop_size=6, dim=2, max_iter=500, lower_bounds=None, upper_bounds=None):
-        """
-        Flexible FSRO optimizer with per-dimension bounds.
-        """
         self.fobj = fobj
         self.pop_size = pop_size
         self.dim = dim
         self.max_iter = max_iter
 
-        # Default bounds if not provided
-        if lower_bounds is None:
-            self.lb = np.full(dim, -5.0)
-        else:
-            self.lb = np.array(lower_bounds)
-
-        if upper_bounds is None:
-            self.ub = np.full(dim, 5.0)
-        else:
-            self.ub = np.array(upper_bounds)
+        self.lb = np.full(dim, -5.0) if lower_bounds is None else np.array(lower_bounds)
+        self.ub = np.full(dim, 5.0) if upper_bounds is None else np.array(upper_bounds)
 
         self.snakes = self._init_agents()
         self.best_solution = None
@@ -42,14 +32,8 @@ class FSRO:
             partner = self.snakes[np.random.randint(self.pop_size)]
             c1, c2 = sorted(np.random.choice(self.dim, 2, replace=False))
             child = s.copy()
-
-            # Crossover
             child[c1:c2] = partner[c1:c2]
-
-            # Mutation
             child += np.random.normal(0, 0.3, self.dim)
-
-            # Clip to bounds per dimension
             child = np.clip(child, self.lb, self.ub)
             new_snakes.append(child)
         self.snakes = np.array(new_snakes)

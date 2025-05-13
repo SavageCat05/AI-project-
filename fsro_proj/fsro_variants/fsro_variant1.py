@@ -27,6 +27,8 @@ class AM_FSRO:
         best_idx = np.argmin(fitness)
         self.best_fitness = fitness[best_idx]
         self.best_solution = self.population[best_idx].copy()
+        
+        self.x_bound = (self.lb, self.ub)
 
     def _init_pop(self):
         return np.random.uniform(self.lb, self.ub, (self.pop_size, self.dim))
