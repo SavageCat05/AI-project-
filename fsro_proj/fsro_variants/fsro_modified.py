@@ -6,8 +6,9 @@ class FSRO:
         objective_func,
         pop_size=None,
         dim=30,
-        max_gen=500,
-        x_bound=(-100.0, 100.0),
+        max_iter=500,
+        lower_bounds=None,
+        upper_bounds=None,
         mutation_rate=0.05,
         elite_ratio=0.2,
         stagnation_limit=30
@@ -18,8 +19,18 @@ class FSRO:
         self.obj_func = objective_func
         self.dim = dim
         self.pop_size = pop_size if pop_size else dim * 3  # Scale population with dimension
-        self.max_gen = max_gen
-        self.x_bound = x_bound
+        self.max_iter = max_iter
+        # Default bounds if not provided
+        if lower_bounds is None:
+            self.lb = np.full(dim, -5.0)
+        else:
+            self.lb = np.array(lower_bounds)
+
+        if upper_bounds is None:
+            self.ub = np.full(dim, 5.0)
+        else:
+            self.ub = np.array(upper_bounds)
+
         self.mutation_rate = mutation_rate
         self.elite_ratio = elite_ratio
         self.stagnation_limit = stagnation_limit
@@ -34,7 +45,7 @@ class FSRO:
         """
         Randomly initialize the population within bounds.
         """
-        return np.random.uniform(self.x_bound[0], self.x_bound[1], (self.pop_size, self.dim))
+        return np.random.uniform(self.lb, self.ub, (self.pop_size, self.dim))
 
     def _mutate_and_crossover(self):
         """
@@ -85,7 +96,7 @@ class FSRO:
         """
         Run the FSRO optimization loop.
         """
-        for gen in range(self.max_gen):
+        for gen in range(self.max_iter):
             self.population = self._mutate_and_crossover()
             _ = self._evaluate()
 

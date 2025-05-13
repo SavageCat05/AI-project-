@@ -1,16 +1,16 @@
 # This work belongs to Kanav. 
-# dont change this without his permission
-# this is code for defferential evolution optimization algorithm.
+# Do not change without his permission.
+# Differential Evolution Optimization Algorithm.
 
 import numpy as np
 
-def optimize(fobj, bounds, max_evals):
-    dim = len(bounds)
+def optimize(fobj, dim, lower_bounds, upper_bounds, max_evals):
     pop_size = 10
     F = 0.5
     CR = 0.9
 
-    X = np.random.uniform([b[0] for b in bounds], [b[1] for b in bounds], (pop_size, dim))
+    X = np.random.uniform(lower_bounds, upper_bounds, (pop_size, dim))
+    
     fitness = np.array([fobj(x) for x in X])
     
     convergence_curve = []
@@ -20,7 +20,7 @@ def optimize(fobj, bounds, max_evals):
         for i in range(pop_size):
             idxs = [idx for idx in range(pop_size) if idx != i]
             a, b, c = X[np.random.choice(idxs, 3, replace=False)]
-            mutant = np.clip(a + F * (b - c), [b[0] for b in bounds], [b[1] for b in bounds])
+            mutant = np.clip(a + F * (b - c), lower_bounds, upper_bounds)
             cross_points = np.random.rand(dim) < CR
             if not np.any(cross_points):
                 cross_points[np.random.randint(0, dim)] = True
@@ -35,5 +35,8 @@ def optimize(fobj, bounds, max_evals):
         best_idx = np.argmin(fitness)
         convergence_curve.append(fitness[best_idx])
 
-    best_solution = X[np.argmin(fitness)]
-    return best_solution, convergence_curve
+    best_idx = np.argmin(fitness)
+    best_solution = X[best_idx]
+    best_fitness = fitness[best_idx]
+
+    return best_solution, best_fitness, convergence_curve

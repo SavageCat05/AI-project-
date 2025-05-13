@@ -5,28 +5,37 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class FSRO:
-    def __init__(self, pop_size=6, dim=2, max_iter=500, bounds=(-5, 5)):
+    def __init__(self, fobj, pop_size=6, dim=2, max_iter=500, lower_bounds=None, upper_bounds=None):
         """
-        Simple FSRO optimizer for customizable dimensional problems with constant mutation.
+        Flexible FSRO optimizer with per-dimension bounds.
         """
+        self.fobj = fobj
         self.pop_size = pop_size
         self.dim = dim
         self.max_iter = max_iter
-        self.bounds = bounds
+
+        # Default bounds if not provided
+        if lower_bounds is None:
+            self.lb = np.full(dim, -5.0)
+        else:
+            self.lb = np.array(lower_bounds)
+
+        if upper_bounds is None:
+            self.ub = np.full(dim, 5.0)
+        else:
+            self.ub = np.array(upper_bounds)
+
         self.snakes = self._init_agents()
         self.best_solution = None
         self.best_fitness = float('inf')
         self.history = []
 
-    # Initialize population with random values
     def _init_agents(self):
-        return np.random.uniform(self.bounds[0], self.bounds[1], (self.pop_size, self.dim))
+        return np.random.uniform(self.lb, self.ub, (self.pop_size, self.dim))
 
-    # Sphere objective function
     def _objective(self, x):
-        return np.sum(np.square(x))
+        return self.fobj(x)
 
-    # One iteration of crossover and mutation for exploration
     def _update_agents(self):
         new_snakes = []
         for s in self.snakes:
@@ -34,18 +43,17 @@ class FSRO:
             c1, c2 = sorted(np.random.choice(self.dim, 2, replace=False))
             child = s.copy()
 
-            # Crossover: swap a segment with the partner
+            # Crossover
             child[c1:c2] = partner[c1:c2]
 
-            # Constant mutation for exploration
+            # Mutation
             child += np.random.normal(0, 0.3, self.dim)
 
-            # Ensure child is within bounds
-            child = np.clip(child, self.bounds[0], self.bounds[1])
+            # Clip to bounds per dimension
+            child = np.clip(child, self.lb, self.ub)
             new_snakes.append(child)
         self.snakes = np.array(new_snakes)
 
-    # Evaluate all agents and update the global best if needed
     def _evaluate(self):
         fitness = np.array([self._objective(ind) for ind in self.snakes])
         best_idx = np.argmin(fitness)
@@ -58,7 +66,6 @@ class FSRO:
 
         self.history.append(self.best_fitness)
 
-    # Main optimization process
     def optimize(self):
         for _ in range(self.max_iter):
             self._update_agents()

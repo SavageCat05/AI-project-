@@ -1,36 +1,56 @@
-# This work belongs to Kanav. 
-# dont change this without his permission
-# this is code for smile mould optimization algorithm.
+# This work belongs to Kanav.  
+# Do not change this without his permission.
+# Slime Mould Algorithm (SMA)
 
 import numpy as np
 
-def optimize(fobj, bounds, max_evals):
-    dim = len(bounds)
+def optimize(fobj, dim, lower_bounds, upper_bounds, max_evals):
     pop_size = 10
-    smas = np.random.uniform([b[0] for b in bounds], [b[1] for b in bounds], (pop_size, dim))
-    fitness = np.array([fobj(s) for s in smas])
+    X = np.random.uniform(lower_bounds, upper_bounds, (pop_size, dim))
     
+    fitness = np.array([fobj(x) for x in X])
+    best_idx = np.argmin(fitness)
+    best_solution = X[best_idx]
+    best_fitness = fitness[best_idx]
+
     convergence_curve = []
     evaluations = pop_size
 
-    best_sma = smas[np.argmin(fitness)]
+    W = np.ones((pop_size, dim))  # Weight matrix
 
     while evaluations < max_evals:
-        sorted_idx = np.argsort(fitness)
+        S = np.argsort(fitness)
+        X = X[S]
+        fitness = fitness[S]
+
+        best_solution = X[0]
+        best_fitness = fitness[0]
+
+        a = np.tanh(abs(fitness[0] - fitness[-1]))
+        b = 1 - evaluations / max_evals
+
         for i in range(pop_size):
-            r = np.random.rand()
-            if r < 0.5:
-                r1, r2 = np.random.randint(0, pop_size, 2)
-                smas[i] = smas[sorted_idx[0]] + r * (smas[r1] - smas[r2])
-            else:
-                r1, r2 = np.random.randint(0, pop_size, 2)
-                smas[i] = smas[sorted_idx[i]] + r * (smas[r1] - smas[r2])
+            for j in range(dim):
+                r = np.random.rand()
+                vb = np.random.rand()
+                vc = np.random.rand()
+                A = np.sign(r - 0.5) * a * (1 - b)
 
-            smas[i] = np.clip(smas[i], [b[0] for b in bounds], [b[1] for b in bounds])
+                p = np.tanh(abs(fitness[i] - best_fitness))
+                W[i, j] = p * ((1 - b) + A)
 
-        fitness = np.array([fobj(s) for s in smas])
+                r1, r2 = np.random.randint(pop_size), np.random.randint(pop_size)
+                X[i, j] = best_solution[j] + W[i, j] * (X[r1, j] - X[r2, j])
+        
+        X = np.clip(X, lower_bounds, upper_bounds)
+        fitness = np.array([fobj(x) for x in X])
         evaluations += pop_size
-        best_sma = smas[np.argmin(fitness)]
-        convergence_curve.append(np.min(fitness))
 
-    return best_sma, convergence_curve
+        best_idx = np.argmin(fitness)
+        if fitness[best_idx] < best_fitness:
+            best_solution = X[best_idx]
+            best_fitness = fitness[best_idx]
+
+        convergence_curve.append(best_fitness)
+
+    return best_solution, best_fitness, convergence_curve

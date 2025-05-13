@@ -1,20 +1,23 @@
 # This work belongs to Kanav. 
-# dont change this without his permission
-# this is code for gwo algorithm.
+# Do not change without his permission.
+# Grey Wolf Optimizer (GWO) Algorithm.
 
 import numpy as np
 
-def optimize(fobj, bounds, max_evals):
-    dim = len(bounds)
+def optimize(fobj, dim, lower_bounds, upper_bounds, max_evals):
     pop_size = 10
-    X = np.random.uniform([b[0] for b in bounds], [b[1] for b in bounds], (pop_size, dim))
+
+    X = np.random.uniform(lower_bounds, upper_bounds, (pop_size, dim))
+    
     fitness = np.array([fobj(x) for x in X])
     
-    alpha, beta, delta = X[np.argsort(fitness)[:3]]
+    idx = np.argsort(fitness)
+    alpha, beta, delta = X[idx[0]], X[idx[1]], X[idx[2]]
+    alpha_fitness = fitness[idx[0]]
+
     convergence_curve = []
     evaluations = pop_size
-
-    a = 2
+    a = 2  # Linearly decreased
 
     while evaluations < max_evals:
         for i in range(pop_size):
@@ -37,14 +40,19 @@ def optimize(fobj, bounds, max_evals):
             X3 = delta - A3 * D_delta
 
             X[i] = (X1 + X2 + X3) / 3
-            X[i] = np.clip(X[i], [b[0] for b in bounds], [b[1] for b in bounds])
+            X[i] = np.clip(X[i], lower_bounds, upper_bounds)
 
         fitness = np.array([fobj(x) for x in X])
         evaluations += pop_size
+
         idx = np.argsort(fitness)
         alpha, beta, delta = X[idx[0]], X[idx[1]], X[idx[2]]
-        convergence_curve.append(fitness[idx[0]])
+        alpha_fitness = fitness[idx[0]]
+        convergence_curve.append(alpha_fitness)
 
-        a -= 2 / (max_evals / pop_size)
+        a -= 2 / (max_evals / pop_size)  # Linearly decreasing 'a'
 
-    return alpha, convergence_curve
+    best_solution = alpha
+    best_fitness = alpha_fitness
+
+    return best_solution, best_fitness, convergence_curve
