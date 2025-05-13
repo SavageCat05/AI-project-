@@ -24,18 +24,34 @@ from opfunu.cec_based import cec2014, cec2017, cec2020, cec2022
 def run_experiments(dimension=10, max_evals=60000, num_runs=50):
     # Step 1: Prepare benchmark functions
     benchmark_functions = []
+    benchmark_labels = []
+    
+    # CEC 2014
     for i in range(1, 14):
         func_class = getattr(cec2014, f"F{i}2014")
         benchmark_functions.append(func_class(ndim=dimension))
+        benchmark_labels.append(f"F{i}_CEC2014")
+        
+    
+    # CEC 2017
     for i in range(1, 10):
         func_class = getattr(cec2017, f"F{i}2017")
         benchmark_functions.append(func_class(ndim=dimension))
+        benchmark_labels.append(f"F{i}_CEC2017")
+        
+    # CEC 2020
     for i in range(1, 5):
         func_class = getattr(cec2020, f"F{i}2020")
         benchmark_functions.append(func_class(ndim=dimension))
+        benchmark_labels.append(f"F{i}_CEC2020")
+        
+    # CEC 2022
     for i in range(1, 5):
         func_class = getattr(cec2022, f"F{i}2022")
         benchmark_functions.append(func_class(ndim=dimension))
+        benchmark_labels.append(f"F{i}_CEC2022")
+        
+    # print(benchmark_functions)
 
     # Step 2: Define all optimization algorithms to test
     algorithms = {
@@ -63,7 +79,7 @@ def run_experiments(dimension=10, max_evals=60000, num_runs=50):
 
     # Step 4: Loop through each benchmark function
     for func_idx, func in enumerate(benchmark_functions):
-        func_name = func.__class__.__name__
+        func_name = func.__class__.__name__ 
         print(f"\nRunning on function {func_idx + 1}/{len(benchmark_functions)}: {func_name}")
         convergence_data[func_name] = {}
 
@@ -79,15 +95,20 @@ def run_experiments(dimension=10, max_evals=60000, num_runs=50):
                 np.random.seed(seed)
 
                 if "FSRO" in algo_name:
+                    # FSRO Variants - class-based structure
                     optimizer = algo(dim=dimension, max_iter=max_evals // dimension)
-                    best_solution, best_fitness, fitness_curve = optimizer.optimize() 
+                    best_solution, best_fitness, fitness_curve = optimizer.optimize()
                     best_scores.append(best_fitness)
                     all_convergence.append(fitness_curve)
                 else:
+                    # Standard function-based optimizers
+                    bounds = [func.lb, func.ub]
                     best_solution, convergence_curve = algo(
                         func.evaluate,
-                        [func.lb, func.ub],
+                        bounds,
+                        dimension,
                         max_evals,
+                        seed=seed
                     )
                     best_scores.append(func.evaluate(best_solution))
                     all_convergence.append(convergence_curve)
