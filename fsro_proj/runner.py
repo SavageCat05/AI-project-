@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from algorithms import pso, de, gwo, mfo, woa, hho, sma
-from benchmarks import cec2014, cec2017, cec2020, cec2022  
+from benchmarks import cec14, cec17, cec20, cec22  
 
 # Settings
 n_runs = 50
@@ -28,10 +28,10 @@ algorithms = {
 
 # List of benchmark functions
 benchmark_sets = {
-    "CEC14": cec2014.get_functions(),
-    "CEC17": cec2017.get_functions(),
-    "CEC20": cec2020.get_functions(),
-    "CEC22": cec2022.get_functions(),
+    "CEC14": cec14.get_functions(),
+    "CEC17": cec17.get_functions(),
+    "CEC20": cec20.get_functions(),
+    "CEC22": cec22.get_functions(),
 }
 
 # Main runner
