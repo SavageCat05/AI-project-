@@ -5,12 +5,20 @@ import matplotlib.pyplot as plt
 
 from algorithms import pso, de, gwo, mfo, woa, hho, sma
 from benchmarks import cec14, cec17, cec20, cec22  
-
+from fsro_variants import fsro_original, fsro_modified
+from eng_funcs import eg_func
 # Settings
 n_runs = 50
 max_evals = 60000
-dim = 30
 save_folder = "results"
+
+benchmark_dims = {
+    "CEC14": 30,
+    "CEC17": 30,
+    "CEC20": 30,
+    "CEC22": 20,  
+}
+
 
 if not os.path.exists(save_folder):
     os.makedirs(save_folder)
@@ -28,14 +36,24 @@ algorithms = {
 
 # List of benchmark functions
 benchmark_sets = {
-    "CEC14": cec14.get_functions(),
-    "CEC17": cec17.get_functions(),
-    "CEC20": cec20.get_functions(),
-    "CEC22": cec22.get_functions(),
+    "CEC14": cec14.get_functions(30),
+    "CEC17": cec17.get_functions(30),
+    "CEC20": cec20.get_functions(30),
+    "CEC22": cec22.get_functions(20),
+}
+
+eng_prob = {
+    "Pressure_vessel": eg_func.pressure_vessel,
+    "Spring_design": eg_func.spring_design,
+    "Welded_beam": eg_func.welded_beam,
+    "Speed_reducer": eg_func.speed_reducer,
+    "Gear_train": eg_func.gear_train,
+    
 }
 
 # Main runner
 for set_name, functions in benchmark_sets.items():
+    dim = benchmark_dims[set_name] 
     print(f"\nRunning Benchmark Set: {set_name}")
     
     for func_idx, (func_name, func) in enumerate(functions.items(), 1):

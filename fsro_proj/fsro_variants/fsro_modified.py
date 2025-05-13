@@ -105,7 +105,7 @@ if __name__ == "__main__":
     def sphere(x):
         return np.sum(x**2)
 
-    optimizer = FSRO(objective_func=sphere, dim=30)
+    optimizer = FSRO(objective_func=sphere, dim=4)
     best_sol, best_fit, history = optimizer.optimize()
 
     print("Best Solution:", best_sol)
