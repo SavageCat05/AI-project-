@@ -1,103 +1,61 @@
-
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from scipy.stats import wilcoxon
+from scipy.stats import rankdata, wilcoxon
 
-# === Placeholder: Import your FSRO algorithm ===
-# from fsro_module import fsro_optimize
+# Load your CSV data
+df = pd.read_csv("AI-project-\\runs_and_tests\\combined_csv_for_wilcoxon_analysis.csv")
 
-# === Benchmark setup ===
-NUM_RUNS = 50
-NUM_FUNCTIONS = 30
-DIM = 30
-MAX_EVALS = 60000
+# Step 1: Per-function summary with ranks
+functions = df["Function"].unique()
+algorithms = df["Algorithm"].unique()
 
-# Placeholder for CEC function suite
-def get_cec_functions():
-    return [lambda x: np.sum(x**2) for _ in range(NUM_FUNCTIONS)]  # Use real CEC loader here
+summary = []
+for func in functions:
+    func_data = df[df["Function"] == func]
+    means = func_data["Mean"].values
+    stds = func_data["StdDev"].values
+    algs = func_data["Algorithm"].values
+    ranks = rankdata(means, method='min')  # lower is better
+    for alg, mean, std, rank in zip(algs, means, stds, ranks):
+        summary.append({
+            "Function": func,
+            "Algorithm": alg,
+            "Mean": mean,
+            "StdDev": std,
+            "Rank": rank
+        })
 
-# === Evaluation tracking wrapper ===
-class EvaluationWrapper:
-    def __init__(self, func, max_evals):
-        self.func = func
-        self.counter = 0
-        self.max_evals = max_evals
+summary_df = pd.DataFrame(summary)
+summary_df.to_csv("AI-project-/wilcoxon_results/fsro_functionwise_summary.csv", index=False)
 
-    def evaluate(self, x):
-        if self.counter >= self.max_evals:
-            return float('inf')
-        self.counter += 1
-        return self.func(x)
+# Step 2: Aggregate rankings
+rankings = summary_df.groupby("Algorithm")["Rank"].agg(["mean", "sum"]).reset_index()
+rankings.columns = ["Algorithm", "AvgRank", "TotalRank"]
+rankings = rankings.sort_values("AvgRank")
+rankings.to_csv("AI-project-/wilcoxon_results/fsro_algorithm_rankings.csv", index=False)
 
-# === Dummy FSRO runner (replace with your actual optimizer) ===
-def fsro_optimize(obj_wrapper, dim, max_evals):
-    best_fitness = float("inf")
-    convergence_curve = []
-    for _ in range(max_evals):
-        x = np.random.uniform(-100, 100, size=dim)
-        fit = obj_wrapper.evaluate(x)
-        if fit < best_fitness:
-            best_fitness = fit
-        convergence_curve.append(best_fitness)
-    return best_fitness, convergence_curve
+# Step 3: Wilcoxon signed-rank test against FSRO_Modified
+baseline_algo = "FSRO_Modified"
+wilcoxon_results = []
 
-# === Benchmarking ===
-cec_functions = get_cec_functions()
-results_matrix = np.zeros((NUM_RUNS, NUM_FUNCTIONS))
-convergence_data = []
+for algo in algorithms:
+    if algo == baseline_algo:
+        continue
+    base_means = []
+    comp_means = []
+    for func in functions:
+        base_val = df[(df["Function"] == func) & (df["Algorithm"] == baseline_algo)]["Mean"].values
+        comp_val = df[(df["Function"] == func) & (df["Algorithm"] == algo)]["Mean"].values
+        if len(base_val) == 1 and len(comp_val) == 1:
+            base_means.append(base_val[0])
+            comp_means.append(comp_val[0])
+    # Perform test
+    if len(base_means) > 0 and len(comp_means) > 0:
+        stat, pval = wilcoxon(base_means, comp_means, alternative='less')
+        wilcoxon_results.append({
+            "ComparedWith": algo,
+            "p-value": pval,
+            "Significant (p<0.05)": pval < 0.05
+        })
 
-for f_idx, func in enumerate(cec_functions):
-    print(f"Running function {f_idx + 1}/{NUM_FUNCTIONS}")
-    func_convergence = []
-
-    for run in range(NUM_RUNS):
-        wrapper = EvaluationWrapper(func, MAX_EVALS)
-        best, curve = fsro_optimize(wrapper, DIM, MAX_EVALS)
-        results_matrix[run, f_idx] = best
-        func_convergence.append(curve)
-
-    convergence_data.append(np.mean(func_convergence, axis=0))  # Mean convergence per function
-
-# === Analysis ===
-means = np.mean(results_matrix, axis=0)
-stds = np.std(results_matrix, axis=0)
-ranks = pd.Series(means).rank().values
-
-# Create result summary table
-summary = pd.DataFrame({
-    "Function": [f"F{i+1}" for i in range(NUM_FUNCTIONS)],
-    "Mean": means,
-    "StdDev": stds,
-    "Rank": ranks
-})
-print(summary)
-
-# === Save results ===
-summary.to_csv("fsro_summary_results.csv", index=False)
-np.save("fsro_all_convergence.npy", np.array(convergence_data))
-
-# === Plot sample convergence curves ===
-plt.figure(figsize=(10, 6))
-for i in range(min(5, NUM_FUNCTIONS)):
-    plt.plot(convergence_data[i], label=f"F{i+1}")
-plt.xlabel("Evaluations")
-plt.ylabel("Best Fitness")
-plt.title("Convergence Curves (Sample Functions)")
-plt.legend()
-plt.grid(True)
-plt.tight_layout()
-plt.savefig("fsro_convergence_sample.png")
-plt.show()
-
-# === Wilcoxon example (against a dummy competitor) ===
-# Replace with real comparison algorithm results
-dummy_results = np.random.rand(NUM_RUNS, NUM_FUNCTIONS)
-p_values = []
-
-for i in range(NUM_FUNCTIONS):
-    stat, p = wilcoxon(results_matrix[:, i], dummy_results[:, i])
-    p_values.append(p)
-
-summary["Wilcoxon_p"] = p_values
-summary.to_csv("fsro_with_significance.csv", index=False)
+wilcoxon_df = pd.DataFrame(wilcoxon_results).sort_values("p-value")
+wilcoxon_df.to_csv("AI-project-/wilcoxon_results/fsro_wilcoxon_results_vs_modified.csv", index=False)
