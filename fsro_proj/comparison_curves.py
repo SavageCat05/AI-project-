@@ -120,11 +120,21 @@ def run_experiments(dimension=10, max_evals=60000, num_runs=50):
                                      lower_bounds= lb, upper_bounds= ub)
                     best_solution, best_fitness, fitness_curve = optimizer.optimize()
                 else:
+                    
+                    lb = np.array(func.lb)
+                    ub = np.array(func.ub)
+
+                    # Pad to match required dimension
+                    if len(lb) < dimension:
+                        lb = np.concatenate([lb, np.zeros(dimension - len(lb))])
+                    if len(ub) < dimension:
+                        ub = np.concatenate([ub, np.ones(dimension - len(ub))])
+                        
                     best_solution, _, fitness_curve = algo(
                         func.evaluate,
                         dim=dimension,
-                        lower_bounds=np.full(dimension, func.lb),
-                        upper_bounds=np.full(dimension, func.ub),
+                        lower_bounds=lb,
+                        upper_bounds=ub,
                         max_evals=max_evals,
                     )
                     best_fitness = func.evaluate(best_solution)
