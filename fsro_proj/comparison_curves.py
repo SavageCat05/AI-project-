@@ -47,25 +47,29 @@ def run_experiments(dimension=10, max_evals=60000, num_runs=50):
 
     benchmark_functions, benchmark_labels = [], []
 
-    for i in range(1, 14):
+    for i in range(1, 12):
         benchmark_functions.append(getattr(cec2014, f"F{i}2014")(ndim=dimension))
         benchmark_labels.append(f"F{i}_CEC2014")
     for i in range(1, 10):
         benchmark_functions.append(getattr(cec2017, f"F{i}2017")(ndim=dimension))
         benchmark_labels.append(f"F{i}_CEC2017")
-    for i in range(1, 5):
+    for i in range(1, 6):
         benchmark_functions.append(getattr(cec2020, f"F{i}2020")(ndim=dimension))
         benchmark_labels.append(f"F{i}_CEC2020")
-    for i in range(1, 5):
+    for i in range(1, 6):
         benchmark_functions.append(getattr(cec2022, f"F{i}2022")(ndim=dimension))
         benchmark_labels.append(f"F{i}_CEC2022")
 
     for name, meta in engineering_problems.items():
         class Wrapper:
-            def __init__(self, evaluate, lb, ub):
-                self.evaluate = evaluate
+            def __init__(self, func, lb, ub):
+                self._func = func
                 self.lb = lb
                 self.ub = ub
+
+            def evaluate(self, x):
+                return self._func(x)
+
         benchmark_functions.append(Wrapper(meta["func"], meta["lb"], meta["ub"]))
         benchmark_labels.append(name)
 
@@ -138,8 +142,9 @@ def run_experiments(dimension=10, max_evals=60000, num_runs=50):
             })
             convergence_data[func_name][algo_name] = np.mean(all_convergence, axis=0)
 
-    pd.DataFrame(results).to_csv('comparison_results.csv', index=False)
-    np.save('convergence_data.npy', convergence_data)
+    os.makedirs("results", exist_ok=True)
+    pd.DataFrame(results).to_csv('results/comparison_results.csv', index=False)
+    np.save('results/convergence_data.npy', convergence_data)
 
     return results, convergence_data
 
@@ -158,7 +163,10 @@ def plot_comparison(convergence_data, functions_to_plot=None):
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig(f"{func_name}_convergence.png")
+        
+        os.makedirs('results', exist_ok=True)
+        plt.savefig(f"results/{func_name}_convergence.png")
+        
         plt.show()
 
 
