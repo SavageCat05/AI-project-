@@ -14,64 +14,64 @@ from eng_funcs.eg_func import pressure_vessel, spring_design, welded_beam, speed
 
 
 def run_experiments(dimension=10, max_evals=60000, num_runs=50):
-    engineering_problems = {
-        "Pressure_Vessel": {
-            "func": pressure_vessel, 
-            "dim": 4, 
-            "lb": np.array([0.0625, 0.0625, 10, 10]), 
-            "ub": np.array([10, 10, 200, 240])},
+    # engineering_problems = {
+    #     "Pressure_Vessel": {
+    #         "func": pressure_vessel, 
+    #         "dim": 4, 
+    #         "lb": np.array([0.0625, 0.0625, 10, 10]), 
+    #         "ub": np.array([10, 10, 200, 240])},
         
-        "Spring_Design": {
-            "func": spring_design, 
-            "dim": 3, "lb": np.array([0.05, 0.25, 2.0]), 
-            "ub": np.array([2.0, 1.3, 15.0])},
+    #     "Spring_Design": {
+    #         "func": spring_design, 
+    #         "dim": 3, "lb": np.array([0.05, 0.25, 2.0]), 
+    #         "ub": np.array([2.0, 1.3, 15.0])},
         
-        "Welded_Beam": {
-            "func": welded_beam, 
-            "dim": 4, 
-            "lb": np.array([0.1, 0.1, 0.1, 0.1]), 
-            "ub": np.array([2.0, 10.0, 10.0, 2.0])},
+    #     "Welded_Beam": {
+    #         "func": welded_beam, 
+    #         "dim": 4, 
+    #         "lb": np.array([0.1, 0.1, 0.1, 0.1]), 
+    #         "ub": np.array([2.0, 10.0, 10.0, 2.0])},
         
-        "Speed_Reducer": {
-            "func": speed_reducer, 
-            "dim": 7, 
-            "lb": np.array([2.6, 0.7, 17, 7.3, 7.3, 2.9, 5.0]), 
-            "ub": np.array([3.6, 0.8, 28, 8.3, 8.3, 3.9, 5.5])},
+    #     "Speed_Reducer": {
+    #         "func": speed_reducer, 
+    #         "dim": 7, 
+    #         "lb": np.array([2.6, 0.7, 17, 7.3, 7.3, 2.9, 5.0]), 
+    #         "ub": np.array([3.6, 0.8, 28, 8.3, 8.3, 3.9, 5.5])},
         
-        "Gear_Train": {
-            "func": gear_train, 
-            "dim": 4, 
-            "lb": np.array([12, 12, 12, 12]), 
-            "ub": np.array([60, 60, 60, 60])}
-    }
+    #     "Gear_Train": {
+    #         "func": gear_train, 
+    #         "dim": 4, 
+    #         "lb": np.array([12, 12, 12, 12]), 
+    #         "ub": np.array([60, 60, 60, 60])}
+    # }
 
     benchmark_functions, benchmark_labels = [], []
 
-    for i in range(1, 12):
-        benchmark_functions.append(getattr(cec2014, f"F{i}2014")(ndim=dimension))
-        benchmark_labels.append(f"F{i}_CEC2014")
+    # for i in range(1, 12):
+    #     benchmark_functions.append(getattr(cec2014, f"F{i}2014")(ndim=dimension))
+    #     benchmark_labels.append(f"F{i}_CEC2014")
     for i in range(1, 10):
         benchmark_functions.append(getattr(cec2017, f"F{i}2017")(ndim=dimension))
         benchmark_labels.append(f"F{i}_CEC2017")
-    for i in range(1, 6):
-        benchmark_functions.append(getattr(cec2020, f"F{i}2020")(ndim=dimension))
-        benchmark_labels.append(f"F{i}_CEC2020")
-    for i in range(1, 6):
-        benchmark_functions.append(getattr(cec2022, f"F{i}2022")(ndim=dimension))
-        benchmark_labels.append(f"F{i}_CEC2022")
+    # for i in range(1, 6):
+    #     benchmark_functions.append(getattr(cec2020, f"F{i}2020")(ndim=dimension))
+    #     benchmark_labels.append(f"F{i}_CEC2020")
+    # for i in range(1, 6):
+    #     benchmark_functions.append(getattr(cec2022, f"F{i}2022")(ndim=dimension))
+    #     benchmark_labels.append(f"F{i}_CEC2022")
 
-    for name, meta in engineering_problems.items():
-        class Wrapper:
-            def __init__(self, func, lb, ub):
-                self._func = func
-                self.lb = lb
-                self.ub = ub
+    # for name, meta in engineering_problems.items():
+    #     class Wrapper:
+    #         def __init__(self, func, lb, ub):
+    #             self._func = func
+    #             self.lb = lb
+    #             self.ub = ub
 
-            def evaluate(self, x):
-                return self._func(x)
+    #         def evaluate(self, x):
+    #             return self._func(x)
 
-        benchmark_functions.append(Wrapper(meta["func"], meta["lb"], meta["ub"]))
-        benchmark_labels.append(name)
+    #     benchmark_functions.append(Wrapper(meta["func"], meta["lb"], meta["ub"]))
+    #     benchmark_labels.append(name)
 
     algorithms = {
         "FSRO_Original": fsro_original.FSRO,
