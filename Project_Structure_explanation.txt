@@ -14,6 +14,10 @@ Fsro_prog folder:
 
 7. fsro_test_wilcoxon.py runs the Wilcoxon test on all the algorithms.
 
+Interactive fsro:
+
+1. Contains original and modified fsro algorithms showing convergence with respect to iterations.
+
 
 Notebooks folder:
 
@@ -23,12 +27,18 @@ Notebooks folder:
 
 Test and visualization folder:
 
-1. Interactive fsro folder contain original and modified fsro with on result shows how convergence occurs as iterations go on.
+1. 50*30 matrix maker program in python
 
-2. 50*30 matrix maker program in python
-
-3. and some test question creating python file.
+2. and some test question creating python file.
 
 Wilcoxon_test_code folder:
 
-1. It contains fsro 
+1. It contains Wilcoxon test code which gives result of Wilcoxon analysis csv.
+
+Wilcoxon_results:
+
+1 Contains all the result produced by Wilcoxon test code.
+
+Further png's and csv:
+
+major results of fsro algorithm on CEC2014 all functions.
