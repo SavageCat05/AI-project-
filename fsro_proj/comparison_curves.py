@@ -161,7 +161,7 @@ def run_experiments(dimension=10, max_evals=60000, num_runs=50):
 
 def plot_comparison(convergence_data, functions_to_plot=None):
     if functions_to_plot is None:
-        functions_to_plot = list(convergence_data.keys())[:5]
+        functions_to_plot = list(convergence_data.keys())[:]
 
     for func_name in functions_to_plot:
         plt.figure(figsize=(10, 6))
