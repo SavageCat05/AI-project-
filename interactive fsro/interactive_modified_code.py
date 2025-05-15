@@ -9,7 +9,7 @@ def sphere(x):
 # Configurations
 POP_SIZE = 6
 DIM = 2
-MAX_GEN = 500
+MAX_GEN = 300
 X_BOUND = (-5, 5)
 
 MUTATION_RATE = 0.05

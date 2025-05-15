@@ -30,13 +30,13 @@ for func in functions:
         })
 
 summary_df = pd.DataFrame(summary)
-summary_df.to_csv("../wilcoxon_results/fsro_functionwise_summary.csv", index=False)
+summary_df.to_csv("wilcoxon_results/fsro_functionwise_summary.csv", index=False)
 
 # Step 2: Aggregate rankings
 rankings = summary_df.groupby("Algorithm")["Rank"].agg(["mean", "sum"]).reset_index()
 rankings.columns = ["Algorithm", "AvgRank", "TotalRank"]
 rankings = rankings.sort_values("AvgRank")
-rankings.to_csv("../wilcoxon_results/fsro_algorithm_rankings.csv", index=False)
+rankings.to_csv("wilcoxon_results/fsro_algorithm_rankings.csv", index=False)
 
 # Step 3: Wilcoxon signed-rank test against FSRO_Modified
 baseline_algo = "FSRO_Modified"
@@ -63,4 +63,4 @@ for algo in algorithms:
         })
 
 wilcoxon_df = pd.DataFrame(wilcoxon_results).sort_values("p-value")
-wilcoxon_df.to_csv("../wilcoxon_results/fsro_wilcoxon_results_vs_modified.csv", index=False)
+wilcoxon_df.to_csv("wilcoxon_results/fsro_wilcoxon_results_vs_modified.csv", index=False)
