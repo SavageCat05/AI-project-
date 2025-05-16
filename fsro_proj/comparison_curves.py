@@ -153,7 +153,7 @@ def run_experiments(dimension=10, max_evals=60000, num_runs=50):
             convergence_data[func_name][algo_name] = np.mean(all_convergence, axis=0)
 
     os.makedirs("results", exist_ok=True)
-    pd.DataFrame(results).to_csv('results/comparison_result_eng_func.csv', index=False)
+    pd.DataFrame(results).to_csv('results/comparison_result.csv', index=False)
     np.save('results/convergence_data.npy', convergence_data)
 
     return results, convergence_data
