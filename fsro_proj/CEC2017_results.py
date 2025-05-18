@@ -5,18 +5,14 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 from algorithms import de, gwo, hho, mfo, pso, sma, woa
-from fsro_variants import (
-    fsro_modified, fsro_original
-)
-from opfunu.cec_based import cec2017
+from fsro_variants import fsro_modified, fsro_original
+from opfunu.cec_based import cec2017  # Import CEC2017 functions
 
 
-def run_experiments(dimension=10, max_evals=60000, num_runs=10):
-
+def run_experiments(dimension=10, max_evals=60000, num_runs=1):
     benchmark_functions, benchmark_labels = [], []
 
-    
-    for i in range(1, 31):  
+    for i in range(1, 31):
         func_name = f"F{i}2017"
         if hasattr(cec2017, func_name):
             benchmark_functions.append(getattr(cec2017, func_name)(ndim=dimension))
@@ -36,47 +32,37 @@ def run_experiments(dimension=10, max_evals=60000, num_runs=10):
         "WOA": woa.optimize,
     }
 
-    results, convergence_data = [], {}
+    fitness_scores_data = []
 
     for func_idx, func in enumerate(benchmark_functions):
         func_name = benchmark_labels[func_idx]
         print(f"\nRunning on function {func_idx + 1}/{len(benchmark_functions)}: {func_name}")
-        convergence_data[func_name] = {}
 
         for algo_name, algo in algorithms.items():
             print(f"  Running {algo_name}...")
-            best_scores, all_convergence = [], []
 
-            for run in tqdm(range(num_runs), desc=f"{algo_name} runs"):
-                seed = run + 1000
-                np.random.seed(seed)
+            for run in range(num_runs):  # Still using num_runs, but only one iteration
+                np.random.seed(1000 + func_idx)
+
+                lb = np.array(func.lb)
+                ub = np.array(func.ub)
+
+                if len(lb) < dimension:
+                    lb = np.concatenate([lb, np.zeros(dimension - len(lb))])
+                if len(ub) < dimension:
+                    ub = np.concatenate([ub, np.ones(dimension - len(ub))])
 
                 if "FSRO" in algo_name:
-                    
-                    lb = np.array(func.lb)
-                    ub = np.array(func.ub)
-
-                    # Pad to match required dimension
-                    if len(lb) < dimension:
-                        lb = np.concatenate([lb, np.zeros(dimension - len(lb))])
-                    if len(ub) < dimension:
-                        ub = np.concatenate([ub, np.ones(dimension - len(ub))])
-                                        
-                    optimizer = algo(func.evaluate, dim=dimension, max_iter=max_evals // dimension,
-                                     lower_bounds= lb, upper_bounds= ub)
-                    best_solution, best_fitness, fitness_curve = optimizer.optimize()
+                    optimizer = algo(
+                        func.evaluate,
+                        dim=dimension,
+                        max_iter=max_evals // dimension,
+                        lower_bounds=lb,
+                        upper_bounds=ub
+                    )
+                    best_solution, best_fitness, _ = optimizer.optimize()
                 else:
-                    
-                    lb = np.array(func.lb)
-                    ub = np.array(func.ub)
-
-                    # Pad to match required dimension
-                    if len(lb) < dimension:
-                        lb = np.concatenate([lb, np.zeros(dimension - len(lb))])
-                    if len(ub) < dimension:
-                        ub = np.concatenate([ub, np.ones(dimension - len(ub))])
-                        
-                    best_solution, _, fitness_curve = algo(
+                    best_solution, _, _ = algo(
                         func.evaluate,
                         dim=dimension,
                         lower_bounds=lb,
@@ -85,47 +71,42 @@ def run_experiments(dimension=10, max_evals=60000, num_runs=10):
                     )
                     best_fitness = func.evaluate(best_solution)
 
-                best_scores.append(best_fitness)
-                all_convergence.append(fitness_curve)
+                fitness_scores_data.append({
+                    "Function": func_name,
+                    "Algorithm": algo_name,
+                    "Run": run + 1,
+                    "Fitness": best_fitness
+                })
 
-            results.append({
-                "Function": func_name,
-                "Algorithm": algo_name,
-                "Mean": np.mean(best_scores),
-                "StdDev": np.std(best_scores),
-                "Min": np.min(best_scores),
-                "Max": np.max(best_scores),
-            })
-            convergence_data[func_name][algo_name] = np.mean(all_convergence, axis=0)
-
+    # Save to CSV
     os.makedirs("CEC2017_benchmarks_results", exist_ok=True)
-    pd.DataFrame(results).to_csv('CEC2017_benchmarks_results/comparison_result_CEC2017.csv', index=False)
-    np.save('CEC2017_benchmarks_results/convergence_data.npy', convergence_data)
+    pd.DataFrame(fitness_scores_data).to_csv(
+        'CEC2017_benchmarks_results/one_run_fitness_scores_CEC2017.csv', index=False)
 
-    return results, convergence_data
+    return fitness_scores_data
 
 
-def plot_comparison(convergence_data, functions_to_plot=None):
-    if functions_to_plot is None:
-        functions_to_plot = list(convergence_data.keys())[:]
+def plot_fitness_scores(fitness_data):
+    df = pd.DataFrame(fitness_data)
+    pivot_df = df.pivot(index='Function', columns='Algorithm', values='Fitness')
 
-    for func_name in functions_to_plot:
-        plt.figure(figsize=(10, 6))
-        for algo_name, data in convergence_data[func_name].items():
-            plt.plot(data, label=algo_name)
-        plt.title(f"Convergence Curve - {func_name}")
-        plt.xlabel("Iterations")
-        plt.ylabel("Best Fitness")
-        plt.legend()
-        plt.grid(True)
-        plt.tight_layout()
-        
-        os.makedirs('CEC2017_benchmarks_results', exist_ok=True)
-        plt.savefig(f"CEC2017_benchmarks_results/{func_name}_convergence.png")
-        
-        # plt.show()
+    plt.figure(figsize=(14, 6))
+    for algo_name in pivot_df.columns:
+        plt.plot(pivot_df.index, pivot_df[algo_name], label=algo_name, marker='o')
+
+    plt.xticks(rotation=90)
+    plt.xlabel("Benchmark Functions (CEC2017)")
+    plt.ylabel("Fitness Value")
+    plt.title("Single-Run Fitness Comparison on 30 CEC2017 Functions")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+
+    os.makedirs('CEC2017_benchmarks_results', exist_ok=True)
+    plt.savefig('CEC2017_benchmarks_results/one_run_fitness_scores_curve_CEC2017.png')
+    # plt.show()
 
 
 if __name__ == "__main__":
-    results, convergence_data = run_experiments()
-    plot_comparison(convergence_data)
+    fitness_data = run_experiments()
+    plot_fitness_scores(fitness_data)

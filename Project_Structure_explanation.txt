@@ -2,17 +2,15 @@ Fsro_prog folder:
 
 1. Algorithm folder contain all the 7 heuristic algorithms used implemented in python.
 
-2. Benchmarks folder contain CEC benchmarks loading function using python.
+2. eng_func folder contains python file for 5 engineering problems 
 
-3. eng_func folder contains python file for 5 engineering problems and a test run python file for problem implementation using modified fsro.
+3. fsro_varients folder contains original code and modified code with 5 varients.
 
-4. fsro_varients folder contains original code and modified code with 5 varients.
+4. Results folder consists of all the convergence graph and convergence result csv.
 
-5. Results folder consists of all the convergence graph and convergence result csv.
+5. comparision_curves.py is the source code to implement 30 benchmarks function using 7 heuristic algorithm and 7 fsro algorithms.
 
-6. comparision_curves.py is the source code to implement 30 benchmarks function and 5 engineering problems using 7 heuristic algorithm and 7 fsro algorithms.
-
-7. fsro_test_wilcoxon.py runs the Wilcoxon test on all the algorithms.
+6. CEC2014_result.py, CEC2017_result.py, CEC2020_result.py, CEC2022_result.py, engineering_prob_results.py are used to calculate fitness values.
 
 Interactive fsro:
 
@@ -21,9 +19,7 @@ Interactive fsro:
 
 Notebooks folder:
 
-1. comparision.py is used to show Fitness convergence and best fitness graph between original and modified code.
-
-2. fsro_summary_results.csv contain means and standard deviation of 30 function of CEC 2014 and their ranking in 50 iterations.
+1. fsro_summary_results.csv contain means and standard deviation of 30 function of CEC 2014 and their ranking in 50 iterations.
 
 Test and visualization folder:
 

@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 class FSRO:
     def __init__(
@@ -151,7 +152,12 @@ if __name__ == "__main__":
     table.auto_set_font_size(False)
     table.set_fontsize(8)
     table.scale(1.2, 1.2)
+    
 
-    # Save the table as a PNG
-    plt.savefig("fsro_cec2014_results_table.png", dpi=300, bbox_inches='tight')
-    print("Saved table as fsro_cec2014_results_table.png")
+    # Get the directory where the current script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    save_path = os.path.join(script_dir, "fsro_cec2014_results_table.png")
+
+    # Save the table as a PNG in the same directory
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    print(f"Saved table as {save_path}")
